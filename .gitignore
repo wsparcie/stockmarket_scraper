@@ -1,0 +1,14 @@
+dist/
+build/
+*.log
+*.tmp
+
+/.vscode/
+/.venv/
+
+/__pychache__/
+node_modules/
+
+exported_data/
+*.xlsx
+*.csv

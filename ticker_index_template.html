@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ticker}} Scraped Data</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    {{style}}
+    <script>
+        function navigateToStock() {
+            const selectedStock = document.getElementById('stockDropdown').value;
+            if (selectedStock) {
+                window.location.href = selectedStock;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="text-left mb-4">{{ticker}} Scraped Data</h1>
+            <a href="{{websiteurl}}" target="_blank" class="btn btn-primary">Visit Company Website</a>
+        </div>
+        <nav class="nav nav-pills nav-fill my-4">
+            <a class="nav-link" href="{{ticker}}_news.html">News</a>
+            <a class="nav-link" href="{{ticker}}_statistics.html">Statistics</a>
+            <a class="nav-link" href="{{ticker}}_financials.html">Financials</a>
+            <a class="nav-link" href="{{ticker}}_analysis.html">Analysis</a>
+            <a class="nav-link" href="{{ticker}}_holders.html">Holders</a>
+            <a class="nav-link" href="{{ticker}}_executives.html">Executives</a>
+            <a class="nav-link" href="{{ticker}}_history.html">History</a>
+            <a class="nav-link" href="{{ticker}}_ohlcchart.html">OHLC Chart</a>
+        </nav>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Summary</h5>
+                {{summaryhtml}}
+            </div>
+            <div class="col-md-6">
+                <h5>Info</h5>
+                {{infohtml}}
+                <div class="description">
+                    <h6>Description</h6>
+                    <p>{{description}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

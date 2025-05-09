@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scraped Stocks Data</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    {{style}}
+    <script>
+        function navigateToStock() {
+            const selectedStock = document.getElementById('stockDropdown').value;
+            if (selectedStock) {
+                window.location.href = selectedStock;
+            }
+        }
+        function updateMarketTimer() {
+            const now = new Date();
+            const openTime = new Date();
+            const closeTime = new Date();
+            openTime.setHours(9, 30, 0, 0); 
+            closeTime.setHours(16, 0, 0, 0);
+            let message = "";
+            let timeDiff = 0;
+            if (now < openTime) {
+                message = "Market opens in:";
+                timeDiff = openTime - now;
+            } else if (now >= openTime && now <= closeTime) {
+                message = "Market closes in:";
+                timeDiff = closeTime - now;
+            } else {
+                message = "Market opens in:";
+                openTime.setDate(openTime.getDate() + 1); // Next day
+                timeDiff = openTime - now;
+            }
+            const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+            document.getElementById("marketTimerMessage").innerText = message;
+            document.getElementById("marketTimer").innerText = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        setInterval(updateMarketTimer, 1000);
+    </script>
+</head>
+<body onload="updateMarketTimer()">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Scraped Stocks Data</h1>
+        <div class="row justify-content-center align-items-center mb-4">
+            <div class="col-md-6">
+                <label for="stockDropdown" class="form-label">Select a Stock:</label>
+                <select id="stockDropdown" class="form-select" onchange="navigateToStock()">
+                    <option value="" disabled selected>Choose a stock</option>
+                    {{options}}
+                </select>
+            </div>
+            <div class="col-md-6 text-center">
+                <div class="alert alert-secondary mb-0" role="alert">
+                    <span id="marketTimerMessage"></span>
+                    <span id="marketTimer"></span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-5">
+            <h2 class="text-center">Top Gainers</h2>
+            {{gainershtml}}
+        </div>
+        <div class="mt-5">
+            <h2 class="text-center">Top Losers</h2>
+            {{losershtml}}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
