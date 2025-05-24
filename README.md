@@ -1,9 +1,9 @@
 # Stock Market Data Scraper
 
-[![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/)
-[![Selenium](https://img.shields.io/badge/Selenium-Latest-green.svg)](https://www.selenium.dev/)
-[![Pandas](https://img.shields.io/badge/Pandas-Latest-red.svg)](https://pandas.pydata.org/)
-[![Plotly](https://img.shields.io/badge/Plotly-Latest-orange.svg)](https://plotly.com/)
+[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/)
+[![Selenium](https://img.shields.io/badge/Selenium-4.29.0-green.svg)](https://www.selenium.dev/)
+[![Pandas](https://img.shields.io/badge/Pandas-2.2.3-red.svg)](https://pandas.pydata.org/)
+[![Plotly](https://img.shields.io/badge/Plotly-6.0.1-orange.svg)](https://plotly.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Last Updated](https://img.shields.io/badge/Last%20Updated-May%202025-brightgreen.svg)](https://github.com/yourusername/stockmarket_scraper)
 
@@ -49,9 +49,9 @@ A simple Python-based web scraper that extracts comprehensive stock market data 
 - Chrome Browser
 - Required Python packages:
   ```
-  selenium
-  pandas
-  plotly
+  selenium>=4.29.0
+  pandas>=2.2.3
+  plotly>=6.0.1
   ```
 
 ## Installation and Setup
