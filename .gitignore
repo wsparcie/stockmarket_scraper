@@ -6,7 +6,7 @@ build/
 /.vscode/
 /.venv/
 
-/__pychache__/
+__pychache__/
 node_modules/
 
 exported_data/
