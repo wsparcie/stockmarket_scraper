@@ -6,8 +6,8 @@ build/
 /.vscode/
 /.venv/
 
-__pycache__/
-node_modules/
+**/__pycache__/
+**/node_modules/
 
 exported_data/
 *.csv
