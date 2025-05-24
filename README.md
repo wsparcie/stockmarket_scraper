@@ -66,7 +66,7 @@ A simple Python-based web scraper that extracts comprehensive stock market data 
 
 ## Usage
 
-1. Configure stock tickers in `utils.py`:
+1. Configure stock tickers in `main.py`:
    ```python
    tickers = ["TSLA", "INTC", "NVDA", "MSFT", "AAPL"]
    ```

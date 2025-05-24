@@ -2,7 +2,6 @@ import os
 import time
 import pandas as pd
 import plotly.graph_objects as go
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -14,68 +13,148 @@ from concurrent.futures import ThreadPoolExecutor
 def wait(driver, locator, timeout=10):
     return WebDriverWait(driver, timeout).until(EC.presence_of_element_located(locator))
 
-def getgainerslosers():
-    def extractdata(url):
-        driver = webdriver.Chrome()
-        try:
+def getgainerslosers(driver):
+    try:
+        def extractdata(url_type, url):
             driver.get(url)
             try:
-                rejectionbutton = driver.find_element(By.XPATH, '//button[@class="btn secondary reject-all"]')
-                action = ActionChains(driver)
-                action.click(on_element=rejectionbutton)
-                action.perform()
-                time.sleep(2)
-            except NoSuchElementException:
-                print("Reject button not found.")
-            
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@class="btn secondary reject-all"]')))
+                try:
+                    rejectionbutton = driver.find_element(By.XPATH, '//button[@class="btn secondary reject-all"]')
+                    action = ActionChains(driver)
+                    action.click(on_element=rejectionbutton)
+                    action.perform()
+                    time.sleep(2)
+                except NoSuchElementException:
+                    print("Reject button not found.")
+            except:
+                print("No cookie consent popup found.")
+            table = None
+            for _ in range(3):
+                try:
+                    table = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "table.yf-1570k0a"))
+                    )
+                    break
+                except:
+                    time.sleep(2)
+                    continue
+            if not table:
+                raise Exception("Table not found after retries")
+            data = []
             headers = []
-            table = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "table[data-testid='table-container']")))
-            headeritems = table.find_elements(By.CSS_SELECTOR, "th")
-            for header in headeritems:
-                headertext = header.text.strip()
-                if headertext:
-                    headers.append(headertext)
-                else:
-                    headers.append('Chart')
-            rowsdata = []
-            rows = table.find_elements(By.CSS_SELECTOR, "tbody tr")
-            for row in rows:
-                rowdata = []
-                cells = row.find_elements(By.CSS_SELECTOR, "td")
-                for cell in cells:
-                    streamers = cell.find_elements(By.TAG_NAME, "fin-streamer")
-                    if streamers:
-                        cell_text = streamers[0].text.strip()
-                    else:
-                        cell_text = cell.text.strip()
-                    rowdata.append(cell_text)
-                if rowdata:
-                    if len(rowdata) > len(headers):
-                        rowdata = rowdata[:len(headers)]
-                    elif len(rowdata) < len(headers):
-                        rowdata.extend([''] * (len(headers) - len(rowdata)))
-                    rowsdata.append(rowdata)
-            df = pd.DataFrame(rowsdata, columns=headers)
-            return df
-        except Exception as e:
-            print(f"Error extracting data from {url}: {e}")
-            return pd.DataFrame()
-        finally:
-            driver.quit()
+            for _ in range(3):
+                try:
+                    header_elements = WebDriverWait(driver, 5).until(
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "thead tr th"))
+                    )
+                    for header in header_elements:
+                        header_text = WebDriverWait(header, 5).until(
+                            EC.presence_of_element_located((By.CSS_SELECTOR, ".colCont"))
+                        ).text.strip()
+                        if header_text:
+                            headers.append(header_text)
+                    break
+                except:
+                    time.sleep(1)
+                    continue
+            for _ in range(3):
+                try:
+                    rows = WebDriverWait(driver, 5).until(
+                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "tbody tr.row"))
+                    )
+                    for row in rows:
+                        try:
+                            row_data = {}
+                            symbol_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:first-child .symbol"))
+                            )
+                            row_data['Symbol'] = symbol_element.text.strip()
+                            name_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(2) div"))
+                            )
+                            row_data['Name'] = name_element.get_attribute("title") or name_element.text.strip()
+                            price_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(4) fin-streamer"))
+                            )
+                            row_data['Price'] = price_element.get_attribute("data-value")
+                            change_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(5) fin-streamer"))
+                            )
+                            row_data['Change'] = change_element.get_attribute("data-value")
+                            change_pct_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(6) fin-streamer"))
+                            )
+                            row_data['Change %'] = change_pct_element.get_attribute("data-value")
+                            volume_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(7) fin-streamer"))
+                            )
+                            row_data['Volume'] = volume_element.text.strip()
+                            avg_vol_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(8)"))
+                            )
+                            row_data['Avg Vol (3m)'] = avg_vol_element.text.strip()
+                            market_cap_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(9) fin-streamer"))
+                            )
+                            row_data['Market Cap'] = market_cap_element.text.strip()
+                            pe_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(10)"))
+                            )
+                            row_data['P/E (TTM)'] = pe_element.text.strip()
+                            wk52_change_element = WebDriverWait(row, 5).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "td:nth-child(11) fin-streamer"))
+                            )
+                            row_data['52 Wk Change %'] = wk52_change_element.get_attribute("data-value")
+                            data.append(row_data)
+                        except Exception as row_error:
+                            print(f"Error processing row: {row_error}")
+                            continue
+                    break
+                except Exception as rows_error:
+                    print(f"Error getting rows: {rows_error}")
+                    time.sleep(1)
+                    continue
+            df = pd.DataFrame(data)
+            numeric_columns = ['Price', 'Change', 'Change %', '52 Wk Change %']
+            for col in numeric_columns:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+            if 'Change %' in df.columns:
+                df['Change %'] = df['Change %'].round(2)
+            if '52 Wk Change %' in df.columns:
+                df['52 Wk Change %'] = df['52 Wk Change %'].round(2)
+            os.makedirs('./exported_data', exist_ok=True)
+            df.to_html(f"./exported_data/{url_type}.html", 
+                    index=False, 
+                    classes="table table-dark table-striped", 
+                    border=0)
+            return url_type, df
 
-    urls = {
-        "gainers": "https://finance.yahoo.com/gainers",
-        "losers": "https://finance.yahoo.com/losers"
-    }
-
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        results = list(executor.map(extractdata, urls.values()))
-    gainersdf, losersdf = results
-    print('\n_____GAINERS_____')
-    print(gainersdf)
-    print('\n_____LOSERS_____')
-    print(losersdf)
-    return gainersdf, losersdf
+        urls = {
+            "gainers": "https://finance.yahoo.com/gainers",
+            "losers": "https://finance.yahoo.com/losers"
+        }
+        results = {}
+        for url_type, url in urls.items():
+            try:
+                type_result, df = extractdata(url_type, url)
+                results[type_result] = df
+            except Exception as e:
+                print(f"Error processing {url_type}: {e}")
+                results[url_type] = None
+        gainersdf = results.get("gainers")
+        losersdf = results.get("losers")
+        if gainersdf is not None:
+            print('\n_____GAINERS_____')
+            print(gainersdf)
+        if losersdf is not None:
+            print('\n_____LOSERS_____')
+            print(losersdf)
+        return gainersdf, losersdf
+    except Exception as e:
+        print(f"Error in getgainerslosers: {e}")
+        return None, None
 
 def getsummary(driver, ticker):
     print('\n_____SUMMARY_____')
@@ -460,7 +539,18 @@ def gethistory(driver, ticker):
         
         try:
             if 'Date' in df.columns:
-                df['Date'] = pd.to_datetime(df['Date'])
+                # Try multiple date format parsing approaches
+                try:
+                    # First try automatic parsing
+                    df['Date'] = pd.to_datetime(df['Date'], format='mixed')
+                except (ValueError, TypeError):
+                    try:
+                        # Try specific format
+                        df['Date'] = pd.to_datetime(df['Date'], format='%b %d, %Y')
+                    except (ValueError, TypeError):
+                        # If all else fails, try forcing parsing
+                        df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
+            
             pricecolumns = [col for col in df.columns if any(priceterm in col.lower() for priceterm in ['price', 'close', 'open', 'high', 'low', 'adj'])]
             if pricecolumns and 'Date' in df.columns:
                 ohlccolumns = ['Open', 'High', 'Low', 'Close']

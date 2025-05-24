@@ -10,5 +10,4 @@ build/
 node_modules/
 
 exported_data/
-*.xlsx
 *.csv
