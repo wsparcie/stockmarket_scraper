@@ -8,11 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from concurrent.futures import ThreadPoolExecutor
 from functions import getsummary, getstatistics, getnews, getholders, getexecutives, getfinancials, getanalysis, gethistory
-from utils import exportxlsx, generateticketindex, generateindex, servehtml
-
-tickers = [
-    "TSLA", "INTC", "NVDA", "MSFT", "AAPL"
-    ]
+from utils import exportcsv, generateticketindex, generateindex, servehtml
+from utils import tickers
 
 os.makedirs('./exported_data', exist_ok=True)
 
@@ -62,7 +59,7 @@ def parallelprocess(ticker):
             "Price History": history,
         }
 
-        exportxlsx(ticker, data)
+        exportcsv(ticker, data)
         generateticketindex(ticker, summary, info, description, websiteurl)
 
     except Exception as e:

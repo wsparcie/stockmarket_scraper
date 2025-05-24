@@ -1,17 +1,21 @@
 import os
 import pandas as pd
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-from main import tickers
 from functions import getgainerslosers
 
-def exportxlsx(ticker, data):
+tickers = [
+    "TSLA", "INTC", "NVDA", "MSFT", "AAPL"
+    ]
+
+
+def exportcsv(ticker, data):
     try:
-        with pd.ExcelWriter(f"./{ticker}_data.xlsx") as writer:
-            for name, data in data.items():
-                if isinstance(data, pd.DataFrame) and not data.empty:
-                    data.to_excel(writer, sheet_name=name[:31], index=False)
+        os.makedirs(f"./{ticker}_data", exist_ok=True)
+        for name, df in data.items():
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                df.to_csv(f"./{ticker}_data/{name}.csv", index=False)
     except Exception as e:
-        print(f"Error exporting {ticker} to xlsx: {e}")
+        print(f"Error exporting {ticker} to csv: {e}")
 
 
 def generateticketindex(ticker, summary, info, description, websiteurl):
