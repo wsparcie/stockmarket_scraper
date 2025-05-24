@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Last Updated](https://img.shields.io/badge/Last%20Updated-May%202025-brightgreen.svg)](https://github.com/yourusername/stockmarket_scraper)
 
-A simple Python-based web scraper that extracts comprehensive stock market data from Yahoo Finance and presents it in both Excel and interactive HTML formats.
+A simple Python-based web scraper that extracts comprehensive stock market data from Yahoo Finance and presents it in both .csv format and interactive HTML formats.
 
 ## Features in Detail
 
